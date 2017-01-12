@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html ng-app="mainApp">
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="font/iconfont.css" />
+		<script src="js/angular.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/angular-route.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="//cdn.bootcss.com/iScroll/5.2.0/iscroll.min.js"></script>
+	</head>
+
+	<body>
+		<div id="wrap">
+			<div class="mainContainer">
+				<div ng-view></div>
+
+			</div>
+			<footer class="mainFoot" ng-controller="footCtrl">
+				<ul>
+					<li class="home">
+						<a href="#/" ng-class="{mainActive:1 == active}" ng-click='isActive(1)'>
+							<dl>
+								<dt class="homeIcon"></dt>
+								<dd>首页</dd>
+							</dl>
+						</a>
+					</li>
+					<li class="diff">
+						<a href="#/page2" ng-class="{mainActive:2 == active}" ng-click='isActive(2)'>
+							<dl>
+								<dt class="diffIcon"></dt>
+								<dd>分类</dd>
+							</dl>
+						</a>
+					</li>
+					<li class="cart">
+						<a href="#/page3" ng-class="{mainActive:3 == active}" ng-click='isActive(3)'>
+							<dl>
+								<dt class="cartIcon"></dt>
+								<dd>购物车</dd>
+							</dl>
+						</a>
+					</li>
+					<li class="myShow">
+						<a href="#/page4" ng-class="{mainActive:4 == active}" ng-click='isActive(4)'>
+							<dl>
+								<dt class="myShowIcon"></dt>
+								<dd>我的秀</dd>
+							</dl>
+						</a>
+					</li>
+					<li class="more">
+						<a href="#/page5" ng-class="{mainActive:5 == active}" ng-click='isActive(5)'>
+							<dl>
+								<dt class="moreIcon"></dt>
+								<dd>更多</dd>
+							</dl>
+						</a>
+					</li>
+				</ul>
+			</footer>
+		</div>
+		<script type="text/javascript">
+			var mainApp = angular.module("mainApp", ['ngRoute']);
+			mainApp.controller("footCtrl", function($scope) {
+				$scope.active = 1;
+				$scope.isActive = function(id) {
+					this.active = id;
+				}
+			});
+			mainApp.config(['$routeProvider', function($routeProvider) {
+				$routeProvider
+					.when('/', {
+						templateUrl: "html/page1.html"
+					}).when('/page2', {
+						templateUrl: "html/page2.html",
+						controller: "diffCtrl"
+					}).when('/page3', {
+						templateUrl: "html/page3.html",
+						controller: "cartCtrl"
+					}).when('/page4', {
+						templateUrl: "html/page4.html",
+						controller: "userCtrl"
+					}).when('/page5', {
+						templateUrl: "html/page5.html"
+					}).otherwise({
+						redirectTo: '/'
+					});
+			}]);
+			mainApp.controller("diffCtrl", function($scope, $http, $timeout, $sce) {
+				$http({
+					url: "http://datainfo.duapp.com/shopdata/getclass.php",
+					method: "GET"
+				}).success(function(res) {
+					for(var i = 0; i < res.length; i++) {
+						res[i].icon = $sce.trustAsHtml(res[i].icon);
+					}
+					$scope.items = res;
+					$timeout(function() {
+						var myScroll = new IScroll('#wrapper', {
+							scrollX: true,
+						});
+					}, 300)
+				});
+				$http.jsonp("http://datainfo.duapp.com/shopdata/getGoods.php?callback=JSON_CALLBACK")
+					.success(function(res) {
+						$scope.clothes = res;
+						$timeout(function() {
+							var page2Height = document.getElementsByClassName("mainContainer")[0].offsetHeight;
+							var mainClothesHeight = document.getElementsByClassName("mainClothes")[0];
+
+							mainClothesHeight.style.height = page2Height - document.getElementsByClassName("registerHead2")[0].offsetHeight - document.getElementsByClassName("diffTit")[0].offsetHeight - 1 + 'px';
+							var myScroll = new IScroll('#wrapper2', {
+								scrollY: true
+							});
+						}, 300);
+					});
+				$scope.searchDiff = function(className, target) {
+					$http.jsonp("http://datainfo.duapp.com/shopdata/getGoods.php?classID=" + className + "&callback=JSON_CALLBACK")
+						.success(function(res) {
+							if(res == "") {
+								alert("抱歉，缺货！");
+								return;
+							}
+							$scope.clothes = res;
+
+						});
+					//					console.log(target)
+				};
+				$scope.goInfo = function(cloth) {
+					localStorage.cloth = JSON.stringify(cloth);
+					window.location.href = "info.html"
+				};
+			});
+			mainApp.controller("cartCtrl", function($scope, $timeout, $http) {
+				var mainContainer = document.getElementsByClassName("mainContainer")[0];
+				var registerHead2 = document.getElementsByClassName("registerHead2")[0];
+				var cartTitle = document.getElementsByClassName("cartTitle")[0];
+				var cartMain = document.getElementsByClassName("cartMain")[0];
+				cartMain.style.height = mainContainer.offsetHeight - registerHead2.offsetHeight - cartTitle.offsetHeight + "px";
+				$scope.userID = localStorage.user;
+				$http.jsonp("http://datainfo.duapp.com/shopdata/getCar.php?userID=" + $scope.userID + "&callback=JSON_CALLBACK").success(function(res) {
+					if(res == 0) {
+						alert("你还没有选购商品哦！")
+					} else {
+						$scope.goodsList = res;
+						//						sumConst();
+						$timeout(function() {
+							var myScroll = new IScroll('#wrapper2', {
+								scrollX: true,
+							});
+							sumConst();
+						}, 300);
+						$scope.goodAdd = function(goodID) {
+							for(var i = 0; i < $scope.goodsList.length; i++) {
+								if($scope.goodsList[i].goodsID == goodID) {
+									$scope.goodsList[i].number++;
+									sumConst();
+									$http({
+										url: "http://datainfo.duapp.com/shopdata/updatecar.php?&userID=" + $scope.userID + "&goodsID=" + goodID + "&number=" + $scope.goodsList[i].number,
+										method: "GET"
+									});
+								}
+							}
+						};
+						$scope.goodMin = function(goodID) {
+							for(var i = 0; i < res.length; i++) {
+								if(res[i].goodsID == goodID) {
+									res[i].number--;
+									if(res[i].number <= 1) {
+										res[i].number = 1;
+									}
+									sumConst();
+									$http({
+										url: "http://datainfo.duapp.com/shopdata/updatecar.php?&userID=" + $scope.userID + "&goodsID=" + goodID + "&number=" + $scope.goodsList[i].number,
+										method: "GET"
+									});
+								}
+							}
+						};
+						$scope.deleteGood = function(goodID) {
+							for(var i = 0; i < res.length; i++) {
+								if(res[i].goodsID == goodID) {
+									$http({
+										url: "http://datainfo.duapp.com/shopdata/updatecar.php?&userID=" + $scope.userID + "&goodsID=" + goodID + "&number=0",
+										method: "GET"
+									});
+									$scope.goodsList.splice(i, 1);
+									sumConst();
+								}
+							}
+						}
+
+						function sumConst() {
+							$scope.goodNumber = 0;
+							$scope.goodMoney = 0;
+							for(var i = 0; i < $scope.goodsList.length; i++) {
+								$scope.goodNumber += Number($scope.goodsList[i].number);
+								$scope.goodMoney += Number($scope.goodsList[i].number * $scope.goodsList[i].price * $scope.goodsList[i].discount * 0.1);
+							}
+						}
+					}
+				})
+			});
+			mainApp.controller("userCtrl", function($scope, $http) {
+				if(localStorage.user == null) {
+					alert("你还没有登录")
+				} else {
+					$scope.userName = localStorage.user;
+					$http.jsonp('http://datainfo.duapp.com/shopdata/getuser.php?userID=' + $scope.userName + "&callback=JSON_CALLBACK").success(function(res) {
+						$scope.userImg = res[0].userimg_url;
+					})
+				}
+			})
+		</script>
+	</body>
+
+</html>

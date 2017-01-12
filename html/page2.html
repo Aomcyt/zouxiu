@@ -1,0 +1,27 @@
+<div id="page2">
+	<header class="registerHead registerHead2">
+		新品上市
+		<a href="#" class="diffCart"></a>
+	</header>
+	<section class="diffTit" id="wrapper">
+		<ul>
+			<li class="iconfont" style="font-size: .26rem;" ng-repeat="item in items" ng-model="item.className" ng-bind-html="item.icon" ng-click="searchDiff(item.classID)"></li>
+		</ul>
+	</section>
+	<section class="mainClothes" id="wrapper2">
+		<ul>
+			<li ng-repeat="cloth in clothes">
+				<dl>
+					<dt><img ng-src="{{cloth.goodsListImg}}" ng-click="goInfo(cloth)"></dt>
+					<dd>
+						<p ng-bind="cloth.goodsName"></p>
+						<div>
+							<span class="cost">{{'￥：'+(cloth.price * cloth.discount* 0.1).toFixed(1)}}</span>
+							<span class="cost1"><s>{{'￥：'+cloth.price }}</s></span>
+						</div>
+					</dd>
+				</dl>
+			</li>
+		</ul>
+	</section>
+</div>

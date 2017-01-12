@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html ng-app="login">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>走秀网</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<script src="js/angular.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/angular-route.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="//cdn.bootcss.com/iScroll/5.2.0/iscroll.min.js"></script>
+	</head>
+
+	<body style="background: #f3eff0;" ng-controller="logCtrl">
+		<header class="registerHead">
+			开心摇摇用户登录
+		</header>
+		<form name="login1">
+
+			<section class="registerUp">
+				<div class="reg">
+					<input type="text" class="registerUser" ng-model="registerUser" placeholder="请输入账户" required/>
+					<input type="{{isShow}}" class="registerPsd" ng-model="registerPsd" placeholder="请输入密码" required />
+				</div>
+				<p class="showPsd">
+					<span>
+					<input type="checkbox" ng-click="isChange()" name="" id="showPsd" value=""/><label for="showPsd">显示密码</label>
+				</span>
+					<a href="javascropt:void(0)">忘记密码？</a>
+				</p>
+				<p class="remPsd">
+					<span>
+					<input type="checkbox" name="" id="remPsd" value=""/><label for="remPsd">记住密码自动登录</label>
+				</span>
+				</p>
+
+			</section>
+			<footer>
+				<a class="btn-register" ng-click="login()" ng-disabled="!login1.registerUser.$valid&&!login1.registerPsd.$valid">登录</a>
+				<a class="btn-login" href="login.html">注册</a>
+			</footer>
+		</form>
+		<div class="message" ng-show="isMessage" ng-bind="isMessage1">
+
+		</div>
+		<script type="text/javascript">
+			var login = angular.module("login", []);
+			login.controller("logCtrl", function($scope, $http, $timeout) {
+				$scope.isMessage = false;
+				$scope.isMessage1 = "";
+				$scope.isShow = "password";
+				var is = true;
+				$scope.isChange = function(){
+					if(is = !is){
+						$scope.isShow = "password";
+					}
+					else{
+						$scope.isShow = "text";
+					}
+				}
+				$scope.login = function() {
+					if($scope.registerUser) {
+						$http({
+							url: "http://datainfo.duapp.com/shopdata/userinfo.php",
+							method: "GET",
+							params: {
+								status: 'login',
+								userID: $scope.registerUser,
+								password: $scope.registerPsd
+							}
+						}).success(function(res) {
+							console.log(res)
+							if(res == 0) {
+								$scope.isMessage = true;
+								$scope.isMessage1 = "用户名不存在"
+								$timeout(function() {
+									$scope.isMessage = false;
+								}, 2000)
+							} else if(res == 2) {
+								$scope.isMessage = true;
+								$scope.isMessage1 = "密码错误"
+								$timeout(function() {
+									$scope.isMessage = false;
+								}, 2000)
+							} else {
+								$scope.isMessage = true;
+								$scope.isMessage1 = "登录成功";
+								localStorage.user = $scope.registerUser
+								$timeout(function() {
+									$scope.isMessage = false;
+									window.location.href = "main.html"
+								}, 1000)
+							}
+
+						})
+					}
+				}
+			})
+		</script>
+	</body>
+
+</html>

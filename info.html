@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html ng-app="infoApp">
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/swiper-3.4.1.min.css" />
+		<script src="//cdn.bootcss.com/Swiper/3.4.1/js/swiper.min.js"></script>
+		<script src="js/swiper.animate1.0.2.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/angular.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="//cdn.bootcss.com/iScroll/5.2.0/iscroll.min.js"></script>
+
+	</head>
+
+	<body>
+		<header class="registerHead registerHead2">
+			<a href="main.html" class="back"></a>
+			商品资料
+			<a href="#" class="diffCart"></a>
+		</header>
+		<section ng-controller="infoCtrl" id="info">
+			<div class="swiper-container banner">
+				<div class="swiper-wrapper">
+					<div class="swiper-slide">
+						<img ng-src="{{infoImg[0]}}" />
+					</div>
+					<div class="swiper-slide">
+						<img ng-src="{{infoImg[1]}}" />
+					</div>
+					<div class="swiper-slide">
+						<img ng-src="{{infoImg[2]}}" />
+					</div>
+
+				</div>
+				<div class="swiper-pagination"></div>
+			</div>
+			<div class="infoMsg">
+				<div class="title">
+					<p ng-bind="cloth.goodsName"></p>
+					<p class="info_cost"> <span class="cost">{{'￥：'+(cloth.price * cloth.discount* 0.1).toFixed(1)}}</span>
+						<span class="cost1"><s>{{'￥：'+cloth.price }}</s></span></p>
+					<p ng-bind="'购买人数：'+cloth.price * 2"></p>
+				</div>
+				<div class="lookInfo" ng-click="Lookinfo()">
+					<div class="look_left">
+						<span class="ai"></span><span class="look_tit">查看商品详情</span>
+					</div>
+					<div class="look_right" ng-class="{look_rightActive:isShowInfo}"></div>
+				</div>
+				<div class="moreInfo" ng-show="isShowInfo">
+					<dl>
+						<dt><img ng-src="{{cloth.goodsListImg}}"/></dt>
+						<dd>
+							<p>品牌名称：<span>美特斯邦威Meterbonwe</span></p>
+							<p>商品名称：<span>美特斯邦威 米底红色花朵印短袖连衣裙</span></p>
+							<p>材质：<span>面料：65.5%粘纤，34.5%棉；里料：100%聚酯纤维</span></p>
+							<p>产地：<span>中国</span></p>
+							<p>商品编号：<span>6900252970172</span></p>
+							<p>洗涤说明：<span>最高洗涤温度30 度 暖和程序，不可漂白，悬挂晾干，熨斗地板温度最高110度，不可干洗</span></p>
+							<p>所属分类：<span>女款连衣裙</span></p>
+							<p>备注：<span>无配件</span></p>
+							<p>其它：<span>24164320</span></p>
+						</dd>
+					</dl>
+				</div>
+				<div class="addCart">
+					<input type="button" id="" value="添加到购物车" ng-click="addGood(cloth.goodsID)" />
+				</div>
+			</div>
+		</section>
+		<script type="text/javascript">
+			var infoApp = angular.module("infoApp", []);
+			var mySwiper = new Swiper('.banner', {
+				pagination: '.swiper-pagination'
+			});
+			infoApp.controller("infoCtrl", function($scope, $http) {
+				$scope.cloth = JSON.parse(localStorage.cloth);
+				$scope.infoImg = JSON.parse($scope.cloth.imgsUrl);
+				$scope.isShowInfo = false;
+				$scope.Lookinfo = function() {
+					$scope.isShowInfo = !$scope.isShowInfo;
+				};
+				$scope.addGood = function(goodsID) {
+					$scope.userID = localStorage.user;
+					$scope.url = "http://datainfo.duapp.com/shopdata/updatecar.php?userID=" + $scope.userID + "&goodsID=" + goodsID + "&number=1&callback=JSON_CALLBACK";
+					$http({
+						url: $scope.url,
+						method: "GET"
+					}).success(function(res) {
+						if(res == 1) {
+							window.location.href = "main.html#/page3";
+						} else if(res == 0) {
+							alert("添加购物车失败");
+						}
+					})
+				}
+			})
+		</script>
+		<script src="js/app.js" type="text/javascript" charset="utf-8"></script>
+	</body>
+
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<script src="js/angular.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/angular-route.min.js" type="text/javascript" charset="utf-8"></script>
+	</head>
+
+	<body style="background: #f3eff0;" ng-app="registerApp" ng-controller="regCtrl">
+		<header class="registerHead">
+			<a class="back" href="register.html"></a>
+			用户注册
+		</header>
+		<section class="loginForm">
+			<form name="register">
+				<p>
+					<span>账户名称 : </span><input type="text" name="username" placeholder="请输入用户名" ng-model="username" required/>
+				</p>
+				<p>
+					<span>登录密码 : </span><input type="password" placeholder="请输入密码" name="psd" ng-model="psd" required/>
+				</p>
+				<p>
+					<span>确认密码 : </span><input type="password" placeholder="请输入密码" ng-model="repPsd" required/>
+				</p>
+				<button class="login_btn" ng-click="sureRegister()" ng-disabled="!register.username.$valid&&!register.psd.$valid">确认注册 </button>
+			</form>
+			<div class="message" ng-show="isMessage" ng-bind="isMessage1">
+
+			</div>
+		</section>
+		<script type="text/javascript">
+			var register = angular.module("registerApp", []);
+			register.controller("regCtrl", function($scope, $http, $timeout) {
+				$scope.isMessage = false;
+				$scope.isMessage1 = "";
+				$scope.sureRegister = function(){
+					$http({
+						url:"http://datainfo.duapp.com/shopdata/userinfo.php",
+						method:"GET",
+						params:{
+							status:'register',
+							userID:$scope.username,
+							password:$scope.psd
+						}
+					}).success(function(res){
+						console.log(res);
+						if(res == 0){
+							$scope.isMessage = true;
+							$scope.isMessage1 = "用户名已存在";
+							$timeout(function(){
+								$scope.isMessage = false;
+							},2000)
+						}else if(res == 1){
+							$scope.isMessage = true;
+							$scope.isMessage1 = "注册成功";
+							$timeout(function(){
+								$scope.isMessage = false;
+								window.location.href = "register.html";
+							},2000)
+						}else if(res == 2){
+							$scope.isMessage = true;
+							$scope.isMessage1 = "数据库错误";
+							$timeout(function(){
+								$scope.isMessage = false;
+							},2000)
+						}
+					})
+				}
+			})
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+
+	<body>
+		<header class="registerHead registerHead2">
+			购物车
+			<a href="#" class="diffCart cartIcon1">结算</a>
+		</header>
+		<section class="diffTit cartTitle" id="wrapper">
+			<p>
+				<span>商品数量：</span><span ng-bind="goodNumber"></span><span>应付总额（不含运费）：</span><span class="sumCount" ng-bind="goodMoney">0</span>
+			</p>
+		</section>
+		<section class="cartMain" id="wrapper2">
+			<ul>
+				<li ng-repeat="good in goodsList">
+					<dl>
+						<dt><img ng-src="{{good.goodsListImg}}"/></dt>
+						<dd>
+							<p class="cartInfo1">
+								<span ng-bind="good.goodsName"></span><i ng-click="deleteGood(good.goodsID)"></i>
+							</p>
+							<p class="cartInfo2">
+								<span>单价 : </span><i ng-bind="good.price * good.discount*0.1| currency:'￥'"></i>
+							</p>
+							<p class="cartInfo3">
+								<span>数量 : </span><i class="numAdd" ng-click="goodAdd(good.goodsID)"></i><input type="text" name="" id="" value="{{good.number}}"/><i class="numMin" ng-click="goodMin(good.goodsID)"></i>
+							</p>
+						</dd>
+					</dl>
+				</li>
+				
+			</ul>
+		</section>
+	</body>
+
+</html>
